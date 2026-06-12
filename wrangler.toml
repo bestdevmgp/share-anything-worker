@@ -1,0 +1,11 @@
+name = "share-anything-upload"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# R2 bucket binding
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "share-anything-bucket"
+
+[vars]
+ALLOWED_ORIGIN = "https://share.mingyu.dev"
