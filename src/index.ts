@@ -1,8 +1,6 @@
 export interface Env {
   ALLOWED_ORIGIN: string;
   R2_BUCKET: R2Bucket;
-  // Shared secret with the backend. When set, every write must carry a valid
-  // backend-issued signature over its storage key. Empty = signing disabled.
   UPLOAD_SIGNING_SECRET?: string;
 }
 
@@ -35,8 +33,6 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Health check for uptime monitoring (no origin gating, no R2 access).
-    // Handle HEAD as well as GET: UptimeRobot (and most monitors) probe with HEAD.
     if (url.pathname === '/health' && (request.method === 'GET' || request.method === 'HEAD')) {
       return new Response(request.method === 'HEAD' ? null : 'OK', { status: 200, headers: corsHeaders });
     }
@@ -197,9 +193,6 @@ async function handleCompleteMultipart(
   );
 }
 
-// Returns a 403 Response when signing is enabled and the signature is missing
-// or invalid; returns null (proceed) otherwise. When no secret is configured,
-// signing is disabled and all uploads are allowed (matches pre-rollout state).
 async function requireSignature(
   env: Env,
   storageKey: string,
@@ -215,7 +208,6 @@ async function requireSignature(
   });
 }
 
-// Verifies `<exp>.<hmac>` where hmac = HMAC-SHA256(secret, "<storageKey>:<exp>").
 async function verifyUploadSignature(
   secret: string,
   storageKey: string,
