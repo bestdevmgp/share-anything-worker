@@ -35,9 +35,10 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Lightweight health check for uptime monitoring (no origin gating, no R2 access).
-    if (url.pathname === '/health' && request.method === 'GET') {
-      return new Response('OK', { status: 200, headers: corsHeaders });
+    // Health check for uptime monitoring (no origin gating, no R2 access).
+    // Handle HEAD as well as GET: UptimeRobot (and most monitors) probe with HEAD.
+    if (url.pathname === '/health' && (request.method === 'GET' || request.method === 'HEAD')) {
+      return new Response(request.method === 'HEAD' ? null : 'OK', { status: 200, headers: corsHeaders });
     }
 
     if (origin && origin !== env.ALLOWED_ORIGIN) {
