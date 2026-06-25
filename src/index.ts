@@ -35,6 +35,11 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Lightweight health check for uptime monitoring (no origin gating, no R2 access).
+    if (url.pathname === '/health' && request.method === 'GET') {
+      return new Response('OK', { status: 200, headers: corsHeaders });
+    }
+
     if (origin && origin !== env.ALLOWED_ORIGIN) {
       return new Response('Forbidden', { status: 403 });
     }
