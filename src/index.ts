@@ -200,7 +200,12 @@ async function requireSignature(
   corsHeaders: Record<string, string>
 ): Promise<Response | null> {
   const secret = env.UPLOAD_SIGNING_SECRET;
-  if (!secret) return null;
+  if (!secret) {
+    return new Response(JSON.stringify({ error: 'Upload signing is not configured' }), {
+      status: 503,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
   if (await verifyUploadSignature(secret, storageKey, signature)) return null;
   return new Response(JSON.stringify({ error: 'Invalid or missing upload signature' }), {
     status: 403,
